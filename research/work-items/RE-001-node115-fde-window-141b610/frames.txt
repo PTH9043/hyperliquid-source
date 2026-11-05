@@ -1,0 +1,26 @@
+# readelf --debug-dump=frames artifacts/node/115/hl-node (excerpt)
+# target sha256 a6e2897cd051213d004802deca416e8eca62b7a8278fa39f249e98c3867b5301
+000000e8 0000000000000010 000000ec FDE cie=00000000 pc=000000000141b600..000000000141b606
+000000fc 0000000000000014 00000100 FDE cie=00000000 pc=000000000141b610..000000000141b633
+00000114 0000000000000010 00000118 FDE cie=00000000 pc=000000000141b640..000000000141b646
+
+# objdump -d --start-address=0x141b610 --stop-address=0x141b633 artifacts/node/115/hl-node
+
+artifacts/node/115/hl-node:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000141b610 <_ZNKSt5ctypeIcE8do_widenEc@@Base-0x492ce20>:
+ 141b610:	31 c0                	xor    %eax,%eax
+ 141b612:	48 3b 06             	cmp    (%rsi),%rax
+ 141b615:	71 1b                	jno    141b632 <_ZNKSt5ctypeIcE8do_widenEc@@Base-0x492cdfe>
+ 141b617:	50                   	push   %rax
+ 141b618:	48 8b 46 08          	mov    0x8(%rsi),%rax
+ 141b61c:	48 8b 77 08          	mov    0x8(%rdi),%rsi
+ 141b620:	48 8b 57 10          	mov    0x10(%rdi),%rdx
+ 141b624:	48 89 c7             	mov    %rax,%rdi
+ 141b627:	e8 94 f2 ff ff       	call   141a8c0 <_ZNKSt5ctypeIcE8do_widenEc@@Base-0x492db70>
+ 141b62c:	b0 04                	mov    $0x4,%al
+ 141b62e:	48 83 c4 08          	add    $0x8,%rsp
+ 141b632:	c3                   	ret

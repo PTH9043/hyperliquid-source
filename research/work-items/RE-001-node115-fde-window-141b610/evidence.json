@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "task": "RE-001",
+  "packet": "RE-001-node115-fde-window-141b610",
+  "component": "foundation",
+  "question": "What does the complete FDE body 0x141b610..0x141b633 compute: which value is compared, which call it makes, and what are its two results?",
+  "target": {
+    "path": "artifacts/node/115/hl-node",
+    "format": "ELF64-x86-64",
+    "sha256": "a6e2897cd051213d004802deca416e8eca62b7a8278fa39f249e98c3867b5301"
+  },
+  "window": {
+    "start": "0x141b610",
+    "end": "0x141b633",
+    "bytes": 35,
+    "coordinate_system": "ELF virtual address, half-open, static bytes only"
+  },
+  "fde": {
+    "record": "000000fc 0000000000000014 00000100 FDE cie=00000000 pc=000000000141b610..000000000141b633",
+    "unwind_table_entry_offset": "0xfc",
+    "record_length": "0x14",
+    "cie_pointer": "0x100",
+    "cie": "00000000",
+    "boundary_source": "authenticated FDE record; not the next unwind-index start",
+    "next_recorded_fde_start": "0x141b640",
+    "next_entry_start_overshoot_bytes": 13
+  },
+  "body": {
+    "instruction_count": 12,
+    "hex": "31c0483b06711b50488b4608488b7708488b57104889c7e894f2ffffb0044883c408c3",
+    "instructions": [
+      {"address": "0x141b610", "bytes": "31c0", "text": "xor %eax,%eax"},
+      {"address": "0x141b612", "bytes": "483b06", "text": "cmp (%rsi),%rax"},
+      {"address": "0x141b615", "bytes": "711b", "text": "jno 0x141b632"},
+      {"address": "0x141b617", "bytes": "50", "text": "push %rax"},
+      {"address": "0x141b618", "bytes": "488b4608", "text": "mov 0x8(%rsi),%rax"},
+      {"address": "0x141b61c", "bytes": "488b7708", "text": "mov 0x8(%rdi),%rsi"},
+      {"address": "0x141b620", "bytes": "488b5710", "text": "mov 0x10(%rdi),%rdx"},
+      {"address": "0x141b624", "bytes": "4889c7", "text": "mov %rax,%rdi"},
+      {"address": "0x141b627", "bytes": "e894f2ffff", "text": "call 0x141a8c0"},
+      {"address": "0x141b62c", "bytes": "b004", "text": "mov $0x4,%al"},
+      {"address": "0x141b62e", "bytes": "4883c408", "text": "add $0x8,%rsp"},
+      {"address": "0x141b632", "bytes": "c3", "text": "ret"}
+    ]
+  },
+  "observations": [
+    "The FDE record ends the body at 0x141b633; the next recorded FDE in the excerpt begins at 0x141b640, so a next-entry-start rule would overstate this body by 13 bytes.",
+    "The body has two exits: the jno at 0x141b615 targets the single ret at 0x141b632, and the fall-through path runs to the same ret after add $0x8,%rsp.",
+    "The fall-through path sets %al to 0x04 at 0x141b62c; the guard path reaches ret with %eax as cleared at 0x141b610."
+  ],
+  "inferences": [
+    "cmp (%rsi),%rax with %rax cleared computes 0 - qword[rsi]; jno therefore takes the early return unless that qword is 0x8000000000000000. This is a flag inference from the recorded encodings; the target was not executed."
+  ],
+  "dependency": {
+    "identity": "libstdc++",
+    "evidence": "objdump labels the window from the nearest exported .dynsym symbol _ZNKSt5ctypeIcE8do_widenEc@@Base, a libstdc++ std::ctype<char> member; the window itself has no symbol",
+    "counting": "dependency window: counts only in target totals and the dependency table, never as reconstructed first-party component bytes"
+  },
+  "limits": [
+    "Only the recorded static bytes of this one FDE body.",
+    "The call target 0x141a8c0, the caller set, the meaning of the compared qword and the enumeration of return values are not established here.",
+    "No execution, no emulation, no network, no reconstruction credit, no component gate change."
+  ]
+}
